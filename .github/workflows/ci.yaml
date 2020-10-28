@@ -64,16 +64,24 @@ jobs:
 
   "macOS-Tests":
     runs-on: macOS-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        xcodes:
+        - 11.5
+        - 12
+        - 12.1
+        - 12.2
     steps:
     - name: Checkout
       uses: actions/checkout@v1
     - name: Show all Xcode versions
       run: ls -an /Applications/ | grep Xcode*
     - name: Change Xcode command line tools
-      run: sudo xcode-select -s /Applications/Xcode_11.5.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcodes }}.app/Contents/Developer
     - name: Xcode Tests
       run: |
         swift package generate-xcodeproj
         xcodebuild -quiet -parallel-testing-enabled YES -scheme vapor-aws-lambda-runtime-Package -enableCodeCoverage YES build test
-    - name: Codecov
-      run: bash <(curl -s https://codecov.io/bash) -t ${{secrets.CODECOV_TOKEN}}
+    # - name: Codecov
+    #   run: bash <(curl -s https://codecov.io/bash) -t ${{secrets.CODECOV_TOKEN}}
